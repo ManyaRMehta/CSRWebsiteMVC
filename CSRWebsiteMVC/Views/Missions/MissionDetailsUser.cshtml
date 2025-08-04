@@ -1,0 +1,37 @@
+﻿@model CSRWebsiteMVC.Models.Mission
+
+@{
+    ViewData["Title"] = "Mission Info";
+}
+
+<h2>@Model.Title</h2>
+
+<div>
+    <p><strong>Description:</strong> @Model.Description</p>
+    <p><strong>Location:</strong> @Model.Location</p>
+    <p><strong>Start Date:</strong> @Model.StartDate.ToShortDateString()</p>
+    <p><strong>End Date:</strong> @Model.EndDate.ToShortDateString()</p>
+    <p><strong>Total Seats:</strong> @Model.TotalSeats</p>
+    <p><strong>Theme:</strong> @Model.MissionTheme?.Title</p>
+
+    <p><strong>Skills:</strong>
+        @foreach (var skill in Model.MissionSkillAssignments.Select(msa => msa.MissionSkill))
+        {
+            <span class="badge bg-secondary">@skill.SkillName</span>
+        }
+    </p>
+</div>
+
+@if (ViewBag.HasApplied != null && (bool)ViewBag.HasApplied)
+{
+    <button class="btn btn-success" disabled>Applied</button>
+}
+else
+{
+    <form asp-action="Apply" method="post" asp-route-missionId="@Model.Id">
+        <button type="submit" class="btn btn-primary">Apply</button>
+    </form>
+}
+
+
+<a asp-action="Index" class="btn btn-secondary mt-3">Back to Missions</a>

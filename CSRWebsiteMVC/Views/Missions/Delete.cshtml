@@ -1,0 +1,21 @@
+﻿@model CSRWebsiteMVC.Models.Mission
+
+@{
+    ViewData["Title"] = "Delete Mission";
+}
+
+<h2>Are you sure you want to delete this mission?</h2>
+
+<div>
+    <h4>@Model.Title</h4>
+    <p><strong>Description:</strong> @Model.Description</p>
+    <p><strong>Location:</strong> @Model.Location</p>
+    <p><strong>Theme:</strong> @Model.MissionTheme?.Title</p>
+    <p><strong>Total Seats:</strong> @Model.TotalSeats</p>
+</div>
+
+<form asp-action="Delete" method="post">
+    <input type="hidden" asp-for="Id" />
+    <button type="submit" class="btn btn-danger">Yes, delete</button>
+    <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+</form>

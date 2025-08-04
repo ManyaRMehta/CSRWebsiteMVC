@@ -1,0 +1,35 @@
+﻿@model CSRWebsiteMVC.ViewModels.ProfileViewModel
+
+@{
+    ViewData["Title"] = "Your Profile";
+}
+
+<h2>Your Profile</h2>
+
+<div class="mb-4">
+    <p><strong>Full Name:</strong> @Model.FullName</p>
+    <p><strong>Email:</strong> @Model.Email</p>
+    <p><strong>Phone Number:</strong> @Model.PhoneNumber</p>
+</div>
+
+<h3>Your Applications</h3>
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Mission</th>
+            <th>Applied On</th>
+            <th>Status</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var app in Model.Applications)
+        {
+            <tr>
+                <td>@app.Mission.Title</td>
+                <td>@app.AppliedOn.ToShortDateString()</td>
+                <td>@app.Status</td>
+            </tr>
+        }
+    </tbody>
+</table>

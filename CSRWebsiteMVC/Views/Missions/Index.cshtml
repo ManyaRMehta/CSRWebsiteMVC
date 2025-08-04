@@ -1,0 +1,80 @@
+﻿@model IEnumerable<CSRWebsiteMVC.Models.Mission>
+@using Microsoft.AspNetCore.Identity
+@inject UserManager<ApplicationUser> UserManager
+
+@{
+    ViewData["Title"] = "Available Missions";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Title</th>
+            <th>Description</th>
+            <th>Location</th>
+            <th>Theme</th>
+            <th>Total Seats</th>
+            <th>Skills</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var mission in Model)
+        {
+            <tr>
+                <td>@mission.Title</td>
+                <td>@mission.Description</td>
+                <td>@mission.Location</td>
+                <td>@mission.MissionTheme?.Title</td>
+                <td>@mission.TotalSeats</td>
+                <td>
+                    @foreach (var assignment in mission.MissionSkillAssignments)
+                    {
+                        <span class="badge bg-secondary">@assignment.MissionSkill.SkillName</span>
+                    }
+                </td>
+                <td>
+                    @* Show different Details button for Admins and Users *@
+                    @if (User.IsInRole("Admin"))
+                    {
+                        <a asp-action="Details" asp-route-id="@mission.Id" class="btn btn-sm btn-info">Details</a>
+                    }
+                    else if (User.IsInRole("User"))
+                    {
+                        <a asp-action="ViewDetails" asp-route-id="@mission.Id" class="btn btn-sm btn-info">Details</a>
+                    }
+
+                    @* Show Apply button only to Users (not Admins) *@
+                    @if (User.Identity.IsAuthenticated && User.IsInRole("User") && !User.IsInRole("Admin"))
+                    {
+                        var userApplications = ViewBag.UserApplications as HashSet<int>;
+                        if (userApplications != null && userApplications.Contains(mission.Id))
+                        {
+                            <button class="btn btn-sm btn-success" disabled>Applied</button>
+                        }
+                        else
+                        {
+                            <form asp-action="Apply" method="post" asp-route-missionId="@mission.Id" class="d-inline">
+                                <button type="submit" class="btn btn-sm btn-primary">Apply</button>
+                            </form>
+                        }
+                    }
+
+                    @* Show Edit/Delete buttons only to Admins *@
+                    @if (User.IsInRole("Admin"))
+                    {
+                        <a asp-action="Edit" asp-route-id="@mission.Id" class="btn btn-sm btn-warning">Edit</a>
+                        <a asp-action="Delete" asp-route-id="@mission.Id" class="btn btn-sm btn-danger">Delete</a>
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@if (User.IsInRole("Admin"))
+{
+    <a asp-action="Create" class="btn btn-success mt-3">Create New Mission</a>
+}

@@ -1,0 +1,45 @@
+﻿@model List<CSRWebsiteMVC.Models.MissionApplication>
+
+@{
+    ViewData["Title"] = "Manage Applications";
+}
+
+<h2>Manage Mission Applications</h2>
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Mission</th>
+            <th>User</th>
+            <th>Status</th>
+            <th>Applied On</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var app in Model)
+        {
+            <tr>
+                <td>@app.Mission.Title</td>
+                <td>@app.User.FullName (@app.User.Email)</td>
+                <td>@app.Status</td>
+                <td>@app.AppliedOn.ToShortDateString()</td>
+                <td>
+                    @if (app.Status == "Pending")
+                    {
+                        <form method="post" asp-action="Approve" asp-route-id="@app.Id" style="display:inline">
+                            <button class="btn btn-sm btn-success">Approve</button>
+                        </form>
+                        <form method="post" asp-action="Reject" asp-route-id="@app.Id" style="display:inline">
+                            <button class="btn btn-sm btn-danger">Reject</button>
+                        </form>
+                    }
+                    else
+                    {
+                        <span class="text-muted">No actions</span>
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

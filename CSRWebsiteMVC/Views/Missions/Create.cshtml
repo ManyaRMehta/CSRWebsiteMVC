@@ -1,0 +1,75 @@
+﻿@model CSRWebsiteMVC.Models.Mission
+
+@if (!ViewData.ModelState.IsValid)
+{
+    <div class="alert alert-danger">
+        Please fix the errors below.
+    </div>
+}
+
+@{
+    ViewData["Title"] = "Create";
+}
+
+<h2>Create Mission</h2>
+
+<form asp-action="Create" method="post">
+    <div class="form-group">
+        <label asp-for="Title" class="control-label"></label>
+        <input asp-for="Title" class="form-control" />
+        <span asp-validation-for="Title" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Description" class="control-label"></label>
+        <textarea asp-for="Description" class="form-control"></textarea>
+        <span asp-validation-for="Description" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Location" class="control-label"></label>
+        <input asp-for="Location" class="form-control" />
+        <span asp-validation-for="Location" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="StartDate" class="control-label"></label>
+        <input asp-for="StartDate" class="form-control" type="date" />
+        <span asp-validation-for="StartDate" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="EndDate" class="control-label"></label>
+        <input asp-for="EndDate" class="form-control" type="date" />
+        <span asp-validation-for="EndDate" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="TotalSeats" class="control-label"></label>
+        <input asp-for="TotalSeats" class="form-control" type="number" min="1" />
+        <span asp-validation-for="TotalSeats" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="MissionThemeId" class="control-label"></label>
+        <select asp-for="MissionThemeId" class="form-control" asp-items="ViewBag.MissionThemeId"></select>
+        <span asp-validation-for="MissionThemeId" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+    <label>Skills</label><br />
+    @foreach (var skill in ViewBag.Skills as List<CSRWebsiteMVC.Models.MissionSkill>)
+    {
+        <label class="form-check-label me-3">
+            <input type="checkbox" name="SelectedSkillIds" value="@skill.Id" class="form-check-input" />
+            @skill.SkillName
+        </label>
+    }
+</div>
+
+
+    <button type="submit" class="btn btn-primary">Create</button>
+</form>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>

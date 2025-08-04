@@ -1,0 +1,16 @@
+# .NET-specific
+bin/
+obj/
+*.user
+*.suo
+
+# VS Code
+.vscode/
+
+# macOS
+.DS_Store
+
+# ASP.NET Core secrets
+appsettings.Development.json
+appsettings.json
+

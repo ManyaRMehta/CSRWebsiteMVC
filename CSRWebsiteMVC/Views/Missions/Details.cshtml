@@ -1,0 +1,58 @@
+﻿@model CSRWebsiteMVC.Models.Mission
+
+@{
+    ViewData["Title"] = "Mission Details";
+}
+
+<h2>Mission Details</h2>
+
+<div>
+    <h4>@Model.Title</h4>
+    <p><strong>Description:</strong> @Model.Description</p>
+    <p><strong>Location:</strong> @Model.Location</p>
+    <p><strong>Start Date:</strong> @Model.StartDate.ToShortDateString()</p>
+    <p><strong>End Date:</strong> @Model.EndDate.ToShortDateString()</p>
+    <p><strong>Total Seats:</strong> @Model.TotalSeats</p>
+    <p><strong>Theme:</strong> @Model.MissionTheme?.Title</p>
+
+    <p><strong>Skills:</strong>
+        @foreach (var skill in Model.MissionSkillAssignments.Select(msa => msa.MissionSkill))
+        {
+            <span class="badge bg-secondary">@skill.SkillName</span>
+        }
+    </p>
+</div>
+
+@if (Model.Applications?.Any() == true)
+{
+    <h4>Applicants</h4>
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Full Name</th>
+                <th>Email</th>
+                <th>Phone Number</th>
+                <th>Status</th>
+                <th>Applied On</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var application in Model.Applications)
+            {
+                <tr>
+                    <td>@application.User?.FullName</td>
+                    <td>@application.User?.Email</td>
+                    <td>@application.User?.PhoneNumber</td>
+                    <td>@application.Status</td>
+                    <td>@application.AppliedOn.ToShortDateString()</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <p>No users have applied yet.</p>
+}
+
+<a asp-action="Index" class="btn btn-secondary mt-3">Back to List</a>
