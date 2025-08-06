@@ -1,18 +1,24 @@
-﻿<!DOCTYPE html>
+﻿@using Microsoft.AspNetCore.Identity
+@using CSRWebsiteMVC.Models
+@inject UserManager<ApplicationUser> UserManager
+
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - CSRWebsiteMVC</title>
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/lib/bootswatch/flatly/bootstrap.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/CSRWebsiteMVC.styles.css" asp-append-version="true" />
+    
+
 </head>
 <body>
     <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-dark bg-primary border-bottom shadow-sm mb-3">
             <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">CSRWebsiteMVC</a>
+                <a class="navbar-brand" asp-area="" asp-controller="Missions" asp-action="Index">CSR</a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse"
                         aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
@@ -20,62 +26,89 @@
 
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                        @*<li class="nav-item">
+                            <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-controller="Missions" asp-action="Index">Missions</a>
-                        </li>
+                            <a class="nav-link" asp-controller="Missions" asp-action="Index">Missions</a>
+                        </li>*@
 
                         @* Admin-only links *@
                         @if (User.IsInRole("Admin"))
                         {
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-controller="Admin" asp-action="Dashboard">Admin</a>
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" id="adminDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    Admin
+                                </a>
+                                <ul class="dropdown-menu" aria-labelledby="adminDropdown">
+                                    @*<li><a class="dropdown-item" asp-controller="Admin" asp-action="Dashboard">Dashboard</a></li>*@
+                                    @*<li><a class="dropdown-item" asp-controller="Missions" asp-action="Index">Missions</a></li>*@
+                                    <li><a class="dropdown-item" asp-controller="MissionThemes" asp-action="Index">Mission Themes</a></li>
+                                    <li><a class="dropdown-item" asp-controller="MissionSkills" asp-action="Index">Mission Skills</a></li>
+                                    <li><a class="dropdown-item" asp-controller="AdminApplications" asp-action="Index">Applications</a></li>
+                                </ul>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-controller="MissionThemes" asp-action="Index">Mission Themes</a>
+                                <a class="nav-link" asp-controller="Account" asp-action="CreateAdmin">Create Admin</a>
                             </li>
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-controller="MissionSkills" asp-action="Index">Mission Skills</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-controller="AdminApplications" asp-action="Index">Manage Applications</a>
-                            </li>
+                            //<li class="nav-item">
+                            //    <a class="nav-link" asp-controller="MissionThemes" asp-action="Index">Mission Themes</a>
+                            //</li>
+                            //<li class="nav-item">
+                            //    <a class="nav-link" asp-controller="MissionSkills" asp-action="Index">Mission Skills</a>
+                            //</li>
+                            //<li class="nav-item">
+                            //    <a class="nav-link" asp-controller="AdminApplications" asp-action="Index">Manage Applications</a>
+                            //</li>
 
                         }
 
-                        @* User-only profile link *@
+                        @* User-only profile link 
                         @if (User.Identity.IsAuthenticated && User.IsInRole("User"))
                         {
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-controller="Account" asp-action="Profile">Profile</a>
+                                <a class="nav-link" asp-controller="Account" asp-action="Profile">Profile</a>
                             </li>
-                        }
+                        }*@
                     </ul>
 
                     <ul class="navbar-nav">
                         @if (User.Identity.IsAuthenticated)
                         {
-                            <li class="nav-item">
-                                <span class="nav-link text-dark">Hello, @User.Identity.Name!</span>
+                            <li class="nav-item dropdown">
+                                @{
+                                    var user = await UserManager.GetUserAsync(User);
+                                    var photoPath = user?.PhotoPath ?? "/profilepics/default.png";
+                                }
+
+                                <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <img src="@photoPath" class="rounded-circle me-2" style="width:32px; height:32px; object-fit:cover;" alt="Profile Picture" />
+                                    Hello, @User.Identity.Name!
+                                </a>
+
+                                <ul class="dropdown-menu" aria-labelledby="userDropdown">
+                                    <li><a class="dropdown-item" asp-controller="Account" asp-action="Profile">Profile</a></li>
+                                    <li>
+                                        <form asp-controller="Account" asp-action="Logout" method="post" class="dropdown-item m-0 p-0">
+                                            <button type="submit" class="btn btn-link dropdown-item">Logout</button>
+                                        </form>
+                                    </li>
+                                </ul>
                             </li>
-                            <li class="nav-item">
-                                <form asp-controller="Account" asp-action="Logout" method="post" class="form-inline">
-                                    <button type="submit" class="nav-link btn btn-link text-dark" style="padding: 0;">Logout</button>
-                                </form>
-                            </li>
+
+                            //<li class="nav-item">
+                            //    <form asp-controller="Account" asp-action="Logout" method="post" class="form-inline">
+                            //        <button type="submit" class="nav-link btn btn-link text-dark" style="padding: 0;">Logout</button>
+                            //    </form>
+                            //</li>
                         }
                         else
                         {
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-controller="Account" asp-action="Login">Login</a>
+                                <a class="nav-link" asp-controller="Account" asp-action="Login">Login</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-controller="Account" asp-action="Register">Register</a>
+                                <a class="nav-link" asp-controller="Account" asp-action="Register">Register</a>
                             </li>
                         }
                     </ul>
@@ -102,5 +135,46 @@
     <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
+
+    <div aria-live="polite" aria-atomic="true" class="position-fixed bottom-0 end-0 p-3" style="z-index: 10000;">
+    <div class="toast" role="alert" aria-live="assertive" aria-atomic="true" id="toastNotification">
+        <div class="toast-header bg-success text-white">
+            <strong class="me-auto" id="toastTitle">Success</strong>
+            <button type="button" class="btn-close btn-close-white ms-2 mb-1" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div class="toast-body" id="toastBody">
+            Action completed successfully.
+        </div>
+    </div>
+</div>
+    <script>
+        function showToast(title, message, isSuccess = true) {
+            const toastEl = document.getElementById('toastNotification');
+            document.getElementById('toastTitle').textContent = title;
+            document.getElementById('toastBody').textContent = message;
+
+            const header = toastEl.querySelector('.toast-header');
+            header.classList.remove('bg-success', 'bg-danger');
+            header.classList.add(isSuccess ? 'bg-success' : 'bg-danger');
+
+            const toast = new bootstrap.Toast(toastEl);
+            toast.show();
+        }
+    </script>
+    @if (TempData["ToastMessage"] != null)
+{
+    <script>
+        window.onload = function () {
+            showToast(
+                "@(TempData["ToastTitle"] ?? "Notice")",
+                "@TempData["ToastMessage"]",
+                @((TempData["IsSuccess"]?.ToString() ?? "true").ToLower())
+            );
+        };
+    </script>
+}
+
+}
+
 </body>
 </html>

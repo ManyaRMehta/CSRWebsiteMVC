@@ -1,0 +1,36 @@
+﻿@model CSRWebsiteMVC.ViewModels.EditProfileViewModel
+
+@{
+    ViewData["Title"] = "Edit Profile";
+}
+
+<h2>Edit Your Profile</h2>
+
+<form asp-action="EditProfile" method="post" enctype="multipart/form-data">
+    <div class="form-group">
+        <label asp-for="FullName"></label>
+        <input asp-for="FullName" class="form-control" />
+        <span asp-validation-for="FullName" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="PhoneNumber"></label>
+        <input asp-for="PhoneNumber" class="form-control" />
+        <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label>Update Profile Picture</label>
+        <input type="file" asp-for="NewProfileImage" class="form-control" />
+    </div>
+
+    @if (!string.IsNullOrEmpty(Model.ExistingPhotoPath))
+    {
+        <div class="mt-2">
+            <p>Current Picture:</p>
+            <img src="@Model.ExistingPhotoPath" width="120" />
+        </div>
+    }
+
+    <button type="submit" class="btn btn-primary mt-3">Save Changes</button>
+</form>

@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CSRWebsiteMVC.Controllers
 {
+
     public class MissionsController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -19,6 +20,7 @@ namespace CSRWebsiteMVC.Controllers
             _context = context;
             _userManager = userManager;
         }
+        [Authorize]
 
         public async Task<IActionResult> Index()
         {
@@ -44,6 +46,22 @@ namespace CSRWebsiteMVC.Controllers
 
             return View(missions);
         }
+        [Authorize(Roles = "Admin")]
+        public IActionResult Create()
+        {
+            ViewData["MissionThemeId"] = new SelectList(_context.MissionThemes, "Id", "Title");
+
+            // 🔧 This line was missing and caused the crash
+            ViewBag.Skills = _context.MissionSkills.ToList();
+
+            return View(new Mission
+            {
+                SelectedSkillIds = new List<int>() // Optional but good to initialize
+            });
+        }
+
+
+
 
 
 
@@ -51,7 +69,7 @@ namespace CSRWebsiteMVC.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> Create(Mission mission)
+        public async Task<IActionResult> Create(Mission mission, IFormFile? imageFile)
         {
             mission.StartDate = DateTime.SpecifyKind(mission.StartDate, DateTimeKind.Utc);
             mission.EndDate = DateTime.SpecifyKind(mission.EndDate, DateTimeKind.Utc);
@@ -59,8 +77,6 @@ namespace CSRWebsiteMVC.Controllers
             ModelState.Remove("MissionTheme");
             if (!ModelState.IsValid)
             {
-
-
                 foreach (var state in ModelState)
                 {
                     foreach (var error in state.Value.Errors)
@@ -72,6 +88,26 @@ namespace CSRWebsiteMVC.Controllers
                 ViewData["MissionThemeId"] = new SelectList(_context.MissionThemes, "Id", "Title", mission.MissionThemeId);
                 return View(mission);
             }
+
+            // Handle image upload if provided
+            if (imageFile != null && imageFile.Length > 0)
+            {
+                var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads");
+                if (!Directory.Exists(uploadsFolder))
+                    Directory.CreateDirectory(uploadsFolder);
+
+                var uniqueFileName = Guid.NewGuid().ToString() + Path.GetExtension(imageFile.FileName);
+                var filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await imageFile.CopyToAsync(stream);
+                }
+
+                mission.ImagePath = "/uploads/" + uniqueFileName;
+            }
+
+            // Save selected skills
             foreach (var skillId in mission.SelectedSkillIds)
             {
                 mission.MissionSkillAssignments.Add(new MissionSkillAssignment
@@ -82,6 +118,7 @@ namespace CSRWebsiteMVC.Controllers
 
             _context.Add(mission);
             await _context.SaveChangesAsync();
+            TempData["ToastMessage"] = "Mission created successfully!";
             return RedirectToAction(nameof(Index));
         }
 
@@ -114,7 +151,7 @@ namespace CSRWebsiteMVC.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> Edit(int id, Mission mission, int[] selectedSkills)
+        public async Task<IActionResult> Edit(int id, Mission mission, int[] selectedSkills, IFormFile? imageFile)
         {
             if (id != mission.Id) return NotFound();
 
@@ -151,7 +188,27 @@ namespace CSRWebsiteMVC.Controllers
                     });
                 }
 
+                // Handle image upload if a new file is provided
+                if (imageFile != null && imageFile.Length > 0)
+                {
+                    var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads");
+                    if (!Directory.Exists(uploadsFolder))
+                        Directory.CreateDirectory(uploadsFolder);
+
+                    var uniqueFileName = Guid.NewGuid().ToString() + Path.GetExtension(imageFile.FileName);
+                    var filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+                    using (var stream = new FileStream(filePath, FileMode.Create))
+                    {
+                        await imageFile.CopyToAsync(stream);
+                    }
+
+                    missionToUpdate.ImagePath = "/uploads/" + uniqueFileName;
+                }
+
+
                 await _context.SaveChangesAsync();
+                TempData["ToastMessage"] = "Mission edited successfully!";
                 return RedirectToAction(nameof(Index));
             }
 
@@ -193,6 +250,7 @@ namespace CSRWebsiteMVC.Controllers
         {
             var mission = await _context.Missions.FindAsync(id);
             _context.Missions.Remove(mission);
+            TempData["ToastMessage"] = "Mission deleted successfully!";
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
@@ -216,6 +274,7 @@ namespace CSRWebsiteMVC.Controllers
                 };
 
                 _context.MissionApplications.Add(application);
+                TempData["ToastMessage"] = "Mission applied to successfully!";
                 await _context.SaveChangesAsync();
             }
 

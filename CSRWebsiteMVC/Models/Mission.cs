@@ -29,10 +29,11 @@ public class Mission
     public int MissionThemeId { get; set; }
     public MissionTheme? MissionTheme { get; set; }
 
+    public string? ImagePath { get; set; }
     
     public List<MissionSkillAssignment> MissionSkillAssignments { get; set; } = new();
     [NotMapped]
-public List<int> SelectedSkillIds { get; set; } = new();
+    public List<int> SelectedSkillIds { get; set; } = new();
 
 
 

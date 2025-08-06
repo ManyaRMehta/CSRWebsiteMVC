@@ -34,6 +34,7 @@ namespace CSRWebsiteMVC.Controllers
             {
                 _context.Add(missionSkill);
                 await _context.SaveChangesAsync();
+                TempData["ToastMessage"] = "Mission Skill created successfully!";
                 return RedirectToAction(nameof(Index));
             }
             return View(missionSkill);
@@ -59,6 +60,7 @@ namespace CSRWebsiteMVC.Controllers
             {
                 _context.Update(missionSkill);
                 await _context.SaveChangesAsync();
+                TempData["ToastMessage"] = "Mission Skill edited successfully!";
                 return RedirectToAction(nameof(Index));
             }
             return View(missionSkill);
@@ -82,6 +84,7 @@ namespace CSRWebsiteMVC.Controllers
             if (missionSkill != null)
             {
                 _context.MissionSkills.Remove(missionSkill);
+                TempData["ToastMessage"] = "Mission Skill deleted successfully!";
                 await _context.SaveChangesAsync();
             }
             return RedirectToAction(nameof(Index));

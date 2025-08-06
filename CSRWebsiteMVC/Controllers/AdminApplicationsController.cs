@@ -32,6 +32,7 @@ public class AdminApplicationsController : Controller
         if (application != null)
         {
             application.Status = "Approved";
+            TempData["ToastMessage"] = "Application approved successfully!";
             await _context.SaveChangesAsync();
         }
 
@@ -45,6 +46,7 @@ public class AdminApplicationsController : Controller
         if (application != null)
         {
             application.Status = "Rejected";
+            TempData["ToastMessage"] = "Application rejected successfully!";
             await _context.SaveChangesAsync();
         }
 

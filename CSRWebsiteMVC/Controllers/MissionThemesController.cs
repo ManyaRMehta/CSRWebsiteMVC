@@ -34,6 +34,7 @@ namespace CSRWebsiteMVC.Controllers
             {
                 _context.Add(theme);
                 await _context.SaveChangesAsync();
+                TempData["ToastMessage"] = "Mission Theme created successfully!";
                 return RedirectToAction(nameof(Index));
             }
             return View(theme);
@@ -56,6 +57,7 @@ namespace CSRWebsiteMVC.Controllers
             {
                 _context.Update(theme);
                 await _context.SaveChangesAsync();
+                TempData["ToastMessage"] = "Mission Theme edited successfully!";
                 return RedirectToAction(nameof(Index));
             }
             return View(theme);
@@ -76,6 +78,7 @@ namespace CSRWebsiteMVC.Controllers
             if (theme != null)
             {
                 _context.MissionThemes.Remove(theme);
+                TempData["ToastMessage"] = "Mission Theme deleted successfully!";
                 await _context.SaveChangesAsync();
             }
             return RedirectToAction(nameof(Index));

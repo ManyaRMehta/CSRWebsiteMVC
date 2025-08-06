@@ -1,80 +1,70 @@
 ﻿@model IEnumerable<CSRWebsiteMVC.Models.Mission>
-@using Microsoft.AspNetCore.Identity
-@inject UserManager<ApplicationUser> UserManager
-
 @{
-    ViewData["Title"] = "Available Missions";
+    ViewData["Title"] = "Missions";
 }
 
-<h2>@ViewData["Title"]</h2>
+<h2>Missions</h2>
 
-<table class="table table-bordered">
-    <thead>
-        <tr>
-            <th>Title</th>
-            <th>Description</th>
-            <th>Location</th>
-            <th>Theme</th>
-            <th>Total Seats</th>
-            <th>Skills</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var mission in Model)
-        {
-            <tr>
-                <td>@mission.Title</td>
-                <td>@mission.Description</td>
-                <td>@mission.Location</td>
-                <td>@mission.MissionTheme?.Title</td>
-                <td>@mission.TotalSeats</td>
-                <td>
-                    @foreach (var assignment in mission.MissionSkillAssignments)
-                    {
-                        <span class="badge bg-secondary">@assignment.MissionSkill.SkillName</span>
-                    }
-                </td>
-                <td>
-                    @* Show different Details button for Admins and Users *@
-                    @if (User.IsInRole("Admin"))
-                    {
-                        <a asp-action="Details" asp-route-id="@mission.Id" class="btn btn-sm btn-info">Details</a>
-                    }
-                    else if (User.IsInRole("User"))
-                    {
-                        <a asp-action="ViewDetails" asp-route-id="@mission.Id" class="btn btn-sm btn-info">Details</a>
-                    }
+@if (User.Identity.IsAuthenticated && User.IsInRole("Admin"))
+{
+    <div class="mb-3">
+        <a asp-action="Create" class="btn btn-success">+ Create New Mission</a>
+    </div>
+}
 
-                    @* Show Apply button only to Users (not Admins) *@
+<div class="row row-cols-1 row-cols-md-3 g-4">
+    @foreach (var mission in Model)
+    {
+        <div class="col">
+            <div class="card h-100 shadow-sm">
+                @if (!string.IsNullOrEmpty(mission.ImagePath))
+                {
+                    <img src="@mission.ImagePath" class="card-img-top" alt="Mission Image" style="height: 200px; object-fit: cover;" />
+                }
+                else
+                {
+                    <img src="/uploads/default.jpeg" class="card-img-top" alt="Default Image" style="height: 200px; object-fit: cover;" />
+                }
+
+                <div class="card-body">
+                    <h5 class="card-title">@mission.Title</h5>
+                    <p class="card-text">@mission.Description.Substring(0, Math.Min(100, mission.Description.Length))...</p>
+                    <p class="card-text"><strong>Location:</strong> @mission.Location</p>
+                    <p class="card-text"><strong>Dates:</strong> @mission.StartDate.ToShortDateString() - @mission.EndDate.ToShortDateString()</p>
+
+                    <p class="card-text">
+                        <strong>Skills:</strong>
+                        @foreach (var skill in mission.MissionSkillAssignments.Select(msa => msa.MissionSkill.SkillName))
+                        {
+                            <span class="badge bg-secondary me-1">@skill</span>
+                        }
+                    </p>
+                </div>
+
+                <div class="card-footer d-flex justify-content-between">
                     @if (User.Identity.IsAuthenticated && User.IsInRole("User") && !User.IsInRole("Admin"))
                     {
-                        var userApplications = ViewBag.UserApplications as HashSet<int>;
-                        if (userApplications != null && userApplications.Contains(mission.Id))
+                        if (((HashSet<int>)ViewBag.UserApplications).Contains(mission.Id))
                         {
-                            <button class="btn btn-sm btn-success" disabled>Applied</button>
+                            <span class="text-success fw-bold">Already Applied</span>
                         }
                         else
                         {
-                            <form asp-action="Apply" method="post" asp-route-missionId="@mission.Id" class="d-inline">
+                            <form asp-action="Apply" method="post" asp-route-missionId="@mission.Id">
                                 <button type="submit" class="btn btn-sm btn-primary">Apply</button>
                             </form>
                         }
-                    }
 
-                    @* Show Edit/Delete buttons only to Admins *@
-                    @if (User.IsInRole("Admin"))
+                        <a asp-action="ViewDetails" asp-route-id="@mission.Id" class="btn btn-sm btn-outline-secondary">View</a>
+                    }
+                    else if (User.IsInRole("Admin"))
                     {
-                        <a asp-action="Edit" asp-route-id="@mission.Id" class="btn btn-sm btn-warning">Edit</a>
-                        <a asp-action="Delete" asp-route-id="@mission.Id" class="btn btn-sm btn-danger">Delete</a>
+                        <a asp-action="Details" asp-route-id="@mission.Id" class="btn btn-sm btn-outline-info">Details</a>
+                        <a asp-action="Edit" asp-route-id="@mission.Id" class="btn btn-sm btn-outline-warning">Edit</a>
+                        <a asp-action="Delete" asp-route-id="@mission.Id" class="btn btn-sm btn-outline-danger">Delete</a>
                     }
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
-
-@if (User.IsInRole("Admin"))
-{
-    <a asp-action="Create" class="btn btn-success mt-3">Create New Mission</a>
-}
+                </div>
+            </div>
+        </div>
+    }
+</div>
