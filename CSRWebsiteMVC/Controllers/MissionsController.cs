@@ -1,6 +1,7 @@
 using CSRWebsiteMVC.Data;
 using CSRWebsiteMVC.Models;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -22,15 +23,36 @@ namespace CSRWebsiteMVC.Controllers
         }
         [Authorize]
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string searchString, int? themeId, List<int> selectedSkillIds)
         {
-            var missions = await _context.Missions
+            var missionsQuery = _context.Missions
                 .Include(m => m.MissionTheme)
                 .Include(m => m.MissionSkillAssignments)
                     .ThenInclude(msa => msa.MissionSkill)
-                .ToListAsync();
+                .AsQueryable();
 
-            // Check if user is logged in and is a User (not Admin)
+            if (!string.IsNullOrEmpty(searchString))
+            {
+                missionsQuery = missionsQuery.Where(m => m.Title.Contains(searchString)|| m.Description.Contains(searchString));
+            }
+            if (themeId.HasValue)
+            {
+                missionsQuery = missionsQuery.Where(m => m.MissionThemeId == themeId.Value);
+            }
+
+            if (selectedSkillIds != null && selectedSkillIds.Any())
+            {
+                missionsQuery = missionsQuery.Where(m => m.MissionSkillAssignments.Any(msa => selectedSkillIds.Contains(msa.MissionSkillId)));
+            }
+            var missions = await missionsQuery.ToListAsync();
+
+            ViewBag.Themes = await _context.MissionThemes.ToListAsync();
+            ViewBag.Skills = await _context.MissionSkills.ToListAsync();
+            ViewBag.SelectedThemeId = themeId;
+            ViewBag.SelectedSkillIds = selectedSkillIds ?? new List<int>();
+            ViewBag.SearchString = searchString;
+
+            
             var userId = _userManager.GetUserId(User);
             var userApplications = new HashSet<int>();
 
@@ -43,6 +65,7 @@ namespace CSRWebsiteMVC.Controllers
             }
 
             ViewBag.UserApplications = userApplications;
+            
 
             return View(missions);
         }

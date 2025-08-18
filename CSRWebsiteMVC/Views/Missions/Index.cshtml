@@ -4,6 +4,57 @@
 }
 
 <h2>Missions</h2>
+<form method="get" asp-controller="Missions" asp-action="Index" class="row mb-4 g-2">
+    <div class="col-md-4">
+        <input type="text" name="searchString" value="@ViewBag.SearchString" class="form-control" placeholder="Search missions..." />
+    </div>
+    <div class="col-md-3">
+        @{
+            var themes = ViewBag.Themes as IEnumerable<CSRWebsiteMVC.Models.MissionTheme> ?? Enumerable.Empty<CSRWebsiteMVC.Models.MissionTheme>();
+            int? selectedThemeId = ViewBag.SelectedThemeId as int?;
+        }
+        <select name="themeId" class="form-select">
+            <option value="">All Themes</option>
+            @foreach (var theme in ViewBag.Themes)
+            {
+                if (selectedThemeId.HasValue && theme.Id == selectedThemeId.Value)
+                {
+                    <option value="@theme.Id" selected>@theme.Title</option>
+                }
+                else
+                {
+                    <option value="@theme.Id">@theme.Title</option>
+                }
+            }
+        </select>
+    </div>
+    <div class="col-md-4">
+        @{
+            var skills = ViewBag.Skills as IEnumerable<CSRWebsiteMVC.Models.MissionSkill> ?? Enumerable.Empty<CSRWebsiteMVC.Models.MissionSkill>();
+            var selectedIds = ViewBag.SelectedSkillIds as IEnumerable<int> ?? Enumerable.Empty<int>();
+        }
+        <select name="selectedSkillIds" class="form-select" multiple>
+    @foreach (var skill in skills)
+    {
+                    if (selectedIds.Contains(skill.Id))
+            {
+                <option value="@skill.Id" selected="selected">@skill.SkillName</option>
+            }
+            else
+            {
+                <option value="@skill.Id">@skill.SkillName</option>
+            }
+
+    }
+</select>
+<small class="text-muted">Hold Ctrl (Windows) or Cmd (Mac) to select multiple</small>
+    </div>
+    <div class="col-md-1">
+        <button type="submit" class="btn btn-primary w-100">Filter</button>
+    </div>
+</form>
+
+
 
 @if (User.Identity.IsAuthenticated && User.IsInRole("Admin"))
 {
